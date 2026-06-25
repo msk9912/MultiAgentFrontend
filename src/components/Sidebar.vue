@@ -42,7 +42,7 @@ function handleDeleteChat(e, conversationId) {
 
     <!-- 새 채팅 -->
     <div class="new-chat-wrap">
-      <button v-if="!showNewChatInput" class="new-chat-btn" @click="showNewChatInput = true">
+      <button class="new-chat-btn" @click="handleNewChat">
         <span class="plus">+</span> 새 채팅
       </button>
       <div v-else class="new-chat-input-wrap">
