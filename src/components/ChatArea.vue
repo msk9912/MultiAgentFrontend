@@ -207,7 +207,7 @@ async function handleSendMessage() {
   background: linear-gradient(135deg, #F5F7FB 0%, #FAFAFB 100%);
   padding: 40px 20px;
 }
-.welcome-content { text-align: center; max-width: 720px; }
+.welcome-content { text-align: center; max-width: 720px; width: 100%; }
 .welcome-title {
   font-size: 32px; font-weight: 700; color: #18181B; margin-bottom: 8px;
   letter-spacing: -.02em;
