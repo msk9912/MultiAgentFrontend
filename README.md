@@ -3,6 +3,8 @@
 ChatGPT · Notion · LangSmith · Perplexity · Linear 감성의 화이트 SaaS 대시보드를
 **Vue 3 + Vite** 로 구현한 버전입니다. 전체 UI는 한국어로 구성되어 있습니다.
 
+> 백엔드와 연동되어 멀티 에이전트 시스템으로 문서 검색, 웹 자료 조사, 파일 관리를 일괄 처리할 수 있습니다.
+
 ## 실행 방법
 
 ```bash
