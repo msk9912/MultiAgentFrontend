@@ -108,7 +108,6 @@ async function handleSendMessage() {
     <div class="input-wrap" v-if="chatStore.activeConversation">
       <div class="input-inner">
         <div class="input-box">
-          <button class="input-attach" title="파일 첨부">📎</button>
           <input
             v-model="userMessageInput"
             type="text"
