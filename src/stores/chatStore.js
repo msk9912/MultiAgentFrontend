@@ -23,9 +23,6 @@ export const useChatStore = defineStore('chat', () => {
         id: conv.conversation_id,
         ...conv
       }))
-      if (conversations.value.length > 0 && !activeConversationId.value) {
-        activeConversationId.value = conversations.value[0].id
-      }
     } catch (err) {
       error.value = err.message
       console.error('Failed to load conversations:', err)
