@@ -1,0 +1,20 @@
+{
+  "name": "ai-workspace-vue",
+  "version": "1.0.0",
+  "description": "멀티 에이전트 파일 관리 AI Workspace — Vue 3 + Vite",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pinia": "^3.0.4",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "^5.2.0"
+  }
+}
