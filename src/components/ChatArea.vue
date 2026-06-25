@@ -167,7 +167,7 @@ async function handleSendMessage() {
 .conversation { flex: 1; overflow-y: auto; padding: 28px 0; }
 .conversation-inner { max-width: 720px; margin: 0 auto; padding: 0 32px; display: flex; flex-direction: column; gap: 26px; }
 
-.msg-user { display: flex; gap: 13px; align-items: flex-start; align-self: flex-end; max-width: 82%; }
+.msg-user { display: flex; gap: 13px; align-items: flex-start; margin-left: auto; max-width: 82%; }
 .bubble-user { background: #EEF3FE; color: #1B3B8A; padding: 12px 16px; border-radius: 16px 16px 4px 16px; font-size: 14px; line-height: 1.6; font-weight: 500; }
 .avatar-user {
   width: 30px; height: 30px; border-radius: 50%;
