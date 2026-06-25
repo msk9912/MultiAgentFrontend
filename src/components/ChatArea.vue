@@ -89,7 +89,7 @@ async function handleSendMessage() {
               v-model="userMessageInput"
               type="text"
               class="welcome-input"
-              placeholder="질문을 입력하세요..."
+              placeholder="문서를 검색하거나 파일을 관리해보세요"
               @keyup.enter="handleSendMessage"
               :disabled="chatStore.loading"
               autofocus
