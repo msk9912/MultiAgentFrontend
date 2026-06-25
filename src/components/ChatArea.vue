@@ -66,7 +66,6 @@ async function handleSendMessage() {
           <div v-for="msg in chatStore.messages" :key="msg.id" :class="msg.role === 'user' ? 'msg-user' : 'msg-ai'">
             <div v-if="msg.role === 'user'">
               <div class="bubble-user">{{ msg.content }}</div>
-              <div class="avatar-user">{{ currentUser.avatar }}</div>
             </div>
             <div v-else>
               <div class="avatar-ai"><div class="ai-diamond"></div></div>
