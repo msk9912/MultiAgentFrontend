@@ -45,21 +45,6 @@ function handleDeleteChat(e, conversationId) {
       <button class="new-chat-btn" @click="handleNewChat">
         <span class="plus">+</span> 새 채팅
       </button>
-      <div v-else class="new-chat-input-wrap">
-        <input
-          v-model="newChatTitle"
-          type="text"
-          placeholder="채팅 이름"
-          class="new-chat-input"
-          @keyup.enter="handleNewChat"
-          @keyup.escape="showNewChatInput = false"
-          autofocus
-        />
-        <div class="new-chat-actions">
-          <button class="btn-confirm" @click="handleNewChat">생성</button>
-          <button class="btn-cancel" @click="showNewChatInput = false">취소</button>
-        </div>
-      </div>
     </div>
 
     <!-- 스크롤 영역 -->
