@@ -1,10 +1,19 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_TIMEOUT = 30000 // 30초
+
+const handleResponse = async (res) => {
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: res.statusText }))
+    throw new Error(error.message || `API Error: ${res.status}`)
+  }
+  return res.json()
+}
 
 export const chatApi = {
   // 대화방 목록 조회
   async getConversations() {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations`)
-    return res.json()
+    return handleResponse(res)
   },
 
   // 대화방 생성
@@ -14,7 +23,7 @@ export const chatApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title })
     })
-    return res.json()
+    return handleResponse(res)
   },
 
   // 대화방 삭제
@@ -22,7 +31,7 @@ export const chatApi = {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}`, {
       method: 'DELETE'
     })
-    return res.json()
+    return handleResponse(res)
   },
 
   // 대화방 제목 수정
@@ -32,13 +41,13 @@ export const chatApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title })
     })
-    return res.json()
+    return handleResponse(res)
   },
 
   // 메시지 목록 조회
   async getMessages(conversationId) {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}/messages`)
-    return res.json()
+    return handleResponse(res)
   },
 
   // 메시지 전송
@@ -48,6 +57,6 @@ export const chatApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content })
     })
-    return res.json()
+    return handleResponse(res)
   }
 }
