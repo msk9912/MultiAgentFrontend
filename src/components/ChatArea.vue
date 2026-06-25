@@ -215,11 +215,11 @@ async function handleSendMessage() {
 .welcome-subtitle {
   font-size: 16px; color: #71717A; margin-bottom: 32px; line-height: 1.6;
 }
-.welcome-input-wrap { margin-top: 20px; }
+.welcome-input-wrap { margin-top: 20px; width: 100%; }
 .welcome-input-box {
   border: 1px solid #E2E2E8; border-radius: 16px; background: #fff;
   box-shadow: 0 2px 12px rgba(20, 30, 60, .05); padding: 8px;
-  display: flex; align-items: flex-end; gap: 8px;
+  display: flex; align-items: flex-end; gap: 8px; width: 100%;
 }
 .welcome-input {
   flex: 1; padding: 9px 4px; font-size: 14px; border: none; background: transparent;
