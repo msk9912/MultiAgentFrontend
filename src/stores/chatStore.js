@@ -19,7 +19,10 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
     try {
       const data = await chatApi.getConversations()
-      conversations.value = data.conversations || []
+      conversations.value = (data || []).map(conv => ({
+        id: conv.conversation_id,
+        ...conv
+      }))
       if (conversations.value.length > 0 && !activeConversationId.value) {
         activeConversationId.value = conversations.value[0].id
       }
@@ -39,7 +42,10 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
     try {
       const data = await chatApi.getMessages(conversationId)
-      messages.value = data.messages || []
+      messages.value = (data || []).map(msg => ({
+        id: msg.message_id,
+        ...msg
+      }))
     } catch (err) {
       error.value = err.message
       console.error('Failed to load messages:', err)
@@ -54,9 +60,13 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
     try {
       const data = await chatApi.createConversation(title)
-      if (data.id) {
-        conversations.value.push(data)
-        activeConversationId.value = data.id
+      if (data && data.conversation_id) {
+        const conversation = {
+          id: data.conversation_id,
+          ...data
+        }
+        conversations.value.push(conversation)
+        activeConversationId.value = data.conversation_id
         messages.value = []
       }
       return data
