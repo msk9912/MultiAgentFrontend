@@ -41,7 +41,11 @@ export const chatApi = {
       method: 'DELETE',
       headers: getHeaders()
     })
-    return handleResponse(res)
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ message: res.statusText }))
+      throw new Error(error.message || `API Error: ${res.status}`)
+    }
+    return null
   },
 
   // 대화방 제목 수정
