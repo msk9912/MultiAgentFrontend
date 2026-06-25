@@ -24,13 +24,10 @@ async function handleSendMessage() {
   // 활성 대화가 없으면 새로 생성
   if (!chatStore.activeConversationId) {
     const title = msg.substring(0, 50) + (msg.length > 50 ? '...' : '')
-    await chatStore.createConversation(title)
-    // 새 대화가 생성되면 자동으로 메시지 전송
-    setTimeout(() => {
-      if (chatStore.activeConversationId) {
-        chatStore.sendMessage(msg)
-      }
-    }, 100)
+    const conversation = await chatStore.createConversation(title)
+    if (conversation?.conversation_id) {
+      await chatStore.sendMessage(msg)
+    }
   } else {
     await chatStore.sendMessage(msg)
   }
