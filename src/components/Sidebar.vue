@@ -12,11 +12,11 @@ onMounted(() => {
 })
 
 function handleNewChat() {
-  if (newChatTitle.value.trim()) {
-    chatStore.createConversation(newChatTitle.value)
-    newChatTitle.value = ''
-    showNewChatInput.value = false
-  }
+  // 새 채팅 시작: welcome-area 표시
+  chatStore.activeConversationId = null
+  chatStore.messages = []
+  newChatTitle.value = ''
+  showNewChatInput.value = false
 }
 
 function selectChat(conversationId) {

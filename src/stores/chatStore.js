@@ -115,8 +115,17 @@ export const useChatStore = defineStore('chat', () => {
     loading.value = true
     try {
       const data = await chatApi.sendMessage(activeConversationId.value, content)
-      if (data.id) {
-        messages.value.push(data)
+      if (data.user_message && data.assistant_message) {
+        // user_message 추가
+        messages.value.push({
+          id: data.user_message.message_id,
+          ...data.user_message
+        })
+        // assistant_message 추가
+        messages.value.push({
+          id: data.assistant_message.message_id,
+          ...data.assistant_message
+        })
       }
       return data
     } catch (err) {
