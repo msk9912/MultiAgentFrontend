@@ -1,5 +1,12 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const API_TIMEOUT = 30000 // 30초
+const DEFAULT_USER_ID = 1 // 더미 사용자 ID
+
+const getHeaders = (additional = {}) => ({
+  'Content-Type': 'application/json',
+  'X-User-Id': String(DEFAULT_USER_ID),
+  ...additional
+})
 
 const handleResponse = async (res) => {
   if (!res.ok) {
@@ -12,7 +19,9 @@ const handleResponse = async (res) => {
 export const chatApi = {
   // 대화방 목록 조회
   async getConversations() {
-    const res = await fetch(`${API_BASE}/api/v1/chat/conversations`)
+    const res = await fetch(`${API_BASE}/api/v1/chat/conversations`, {
+      headers: getHeaders()
+    })
     return handleResponse(res)
   },
 
@@ -20,7 +29,7 @@ export const chatApi = {
   async createConversation(title) {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ title })
     })
     return handleResponse(res)
@@ -29,7 +38,8 @@ export const chatApi = {
   // 대화방 삭제
   async deleteConversation(conversationId) {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getHeaders()
     })
     return handleResponse(res)
   },
@@ -38,7 +48,7 @@ export const chatApi = {
   async updateConversation(conversationId, title) {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ title })
     })
     return handleResponse(res)
@@ -46,7 +56,9 @@ export const chatApi = {
 
   // 메시지 목록 조회
   async getMessages(conversationId) {
-    const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}/messages`)
+    const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}/messages`, {
+      headers: getHeaders()
+    })
     return handleResponse(res)
   },
 
@@ -54,7 +66,7 @@ export const chatApi = {
   async sendMessage(conversationId, content) {
     const res = await fetch(`${API_BASE}/api/v1/chat/conversations/${conversationId}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ content })
     })
     return handleResponse(res)
