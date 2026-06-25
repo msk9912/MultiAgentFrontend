@@ -217,24 +217,23 @@ async function handleSendMessage() {
 }
 .welcome-input-wrap { margin-top: 20px; }
 .welcome-input-box {
-  border: 1px solid #E2E2E8; border-radius: 20px; background: #fff;
-  box-shadow: 0 4px 24px rgba(20, 30, 60, .08); padding: 12px;
-  display: flex; align-items: center; gap: 12px;
+  border: 1px solid #E2E2E8; border-radius: 16px; background: #fff;
+  box-shadow: 0 2px 12px rgba(20, 30, 60, .05); padding: 8px;
+  display: flex; align-items: flex-end; gap: 8px;
 }
 .welcome-input {
-  flex: 1; padding: 12px 16px; font-size: 16px; border: none; background: transparent;
-  color: #27272A; font-family: inherit; outline: none; min-height: 44px;
+  flex: 1; padding: 9px 4px; font-size: 14px; border: none; background: transparent;
+  color: #27272A; font-family: inherit; outline: none; min-height: 36px;
 }
 .welcome-input::placeholder { color: #A8A8B0; }
 .welcome-input:disabled { color: #A8A8B0; }
 .welcome-send {
-  width: 44px; height: 44px; flex-shrink: 0; border: none;
-  background: linear-gradient(135deg, #3B6EF5, #5B4BE0);
-  border-radius: 14px; color: #fff; cursor: pointer;
+  width: 36px; height: 36px; flex-shrink: 0; border: none;
+  background: #18181B; border-radius: 10px; color: #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: background .15s; box-shadow: 0 2px 8px rgba(59, 110, 245, .3);
+  transition: background .15s;
 }
-.welcome-send:hover { background: linear-gradient(135deg, #2D5AD0, #4A3BC8); }
+.welcome-send:hover { background: #000; }
 .welcome-send:disabled { background: #A1A1AA; cursor: not-allowed; }
 
 .no-messages { text-align: center; padding: 40px 20px; color: #A8A8B0; }
