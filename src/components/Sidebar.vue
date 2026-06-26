@@ -47,6 +47,18 @@ async function saveTitle(conversationId) {
   }
   cancelEditing()
 }
+
+function formatRelativeTime(dateStr) {
+  if (!dateStr) return '방금 전'
+  const diffMs = Date.now() - new Date(dateStr).getTime()
+  const diffMin = Math.floor(diffMs / 60000)
+  if (diffMin < 1) return '방금 전'
+  if (diffMin < 60) return `${diffMin}분 전`
+  const diffHour = Math.floor(diffMin / 60)
+  if (diffHour < 24) return `${diffHour}시간 전`
+  const diffDay = Math.floor(diffHour / 24)
+  return `${diffDay}일 전`
+}
 </script>
 
 <template>
@@ -114,9 +126,8 @@ async function saveTitle(conversationId) {
                 ✕
               </button>
             </div>
-            <span v-else class="chat-item-dot"></span>
           </div>
-          <div class="chat-item-meta">{{ chat.updated_at || '방금 전' }}</div>
+          <div class="chat-item-meta">{{ formatRelativeTime(chat.updated_at) }}</div>
         </div>
       </div>
     </div>
@@ -199,7 +210,6 @@ async function saveTitle(conversationId) {
 .chat-item-row { display: flex; align-items: center; justify-content: space-between; }
 .chat-item-title { font-size: 13px; font-weight: 500; color: #3F3F46; flex: 1; min-width: 0; }
 .chat-item.is-active .chat-item-title { font-weight: 600; color: #18181B; }
-.chat-item-dot { width: 6px; height: 6px; border-radius: 50%; background: #3B6EF5; }
 .chat-item-actions { display: flex; align-items: center; gap: 4px; margin-left: 6px; }
 .chat-item-edit {
   width: 20px; height: 20px; border: none; background: transparent; color: #A1A1AA;
