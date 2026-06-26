@@ -2,6 +2,7 @@
 import { useChatStore } from '../stores/chatStore'
 import { currentUser } from '../constants/user'
 import { onMounted, ref } from 'vue'
+import logo from '../assets/logo.svg'
 
 const chatStore = useChatStore()
 const newChatTitle = ref('')
@@ -65,7 +66,7 @@ function formatRelativeTime(dateStr) {
   <aside class="sidebar">
     <!-- 브랜드 -->
     <div class="brand">
-      <div class="brand-mark"><div class="brand-diamond"></div></div>
+      <div class="brand-mark"><img :src="logo" alt="logo" class="brand-logo" /></div>
       <div class="brand-text">
         <span class="brand-title">AI Workspace</span>
         <span class="brand-sub">Multi-Agent File Assistant</span>
@@ -160,11 +161,10 @@ function formatRelativeTime(dateStr) {
 .brand { display: flex; align-items: center; gap: 10px; padding: 16px 16px 14px; }
 .brand-mark {
   width: 30px; height: 30px; border-radius: 8px;
-  background: linear-gradient(140deg, #3B6EF5, #5B4BE0);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; box-shadow: 0 2px 6px rgba(59, 110, 245, .32);
+  flex-shrink: 0; overflow: hidden;
 }
-.brand-diamond { width: 11px; height: 11px; border: 2.5px solid #fff; border-radius: 3px; transform: rotate(45deg); }
+.brand-logo { width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-title { font-size: 14.5px; font-weight: 700; letter-spacing: -.02em; }
 .brand-sub { font-size: 11px; color: #9A9AA2; font-weight: 500; margin-top: 2px; }
