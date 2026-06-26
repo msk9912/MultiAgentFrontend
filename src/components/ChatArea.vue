@@ -6,8 +6,37 @@ import logo from '../assets/logo.svg'
 const chatStore = useChatStore()
 const userMessageInput = ref('')
 const conversationRef = ref(null)
+const welcomeInputRef = ref(null)
+const chatInputRef = ref(null)
 
 const chatTitle = computed(() => chatStore.activeConversation?.title || '새 채팅')
+
+const guideCards = [
+  {
+    icon: '📄',
+    title: '문서 뒤져줘',
+    desc: '인덱싱된 문서에서 필요한 내용을 찾아요.',
+    prompt: '인덱싱된 문서에서 RAG 파이프라인 구조를 찾아줘'
+  },
+  {
+    icon: '🌐',
+    title: '웹에서 찾아와',
+    desc: '최신 정보나 자료를 웹에서 조사해요.',
+    prompt: '최신 생성형 AI 트렌드를 조사해줘'
+  },
+  {
+    icon: '📁',
+    title: '파일 좀 찾아줘',
+    desc: 'Google Drive 파일 목록을 확인하거나 파일을 찾아요.',
+    prompt: '구글 드라이브에서 프로젝트 문서 목록 보여줘'
+  },
+  {
+    icon: '📅',
+    title: '일정 좀 봐줘',
+    desc: 'Google Calendar 일정을 조회, 등록, 수정, 삭제해요.',
+    prompt: '이번 주 일정 알려줘'
+  }
+]
 
 function scrollToBottom() {
   nextTick(() => {
@@ -17,6 +46,20 @@ function scrollToBottom() {
 
       el.scrollTop = el.scrollHeight
     })
+  })
+}
+
+function fillGuidePrompt(prompt) {
+  if (chatStore.loading) return
+
+  userMessageInput.value = prompt
+
+  nextTick(() => {
+    const input = chatStore.activeConversation
+      ? chatInputRef.value
+      : welcomeInputRef.value
+
+    input?.focus()
   })
 }
 
@@ -140,15 +183,40 @@ async function handleSendMessage() {
     <div v-else class="welcome-area">
       <div class="welcome-content">
         <div class="welcome-title">AI Workspace</div>
-        <div class="welcome-subtitle">문서 검색, 파일 관리, 웹 자료 조사를 한 번에</div>
+        <div class="welcome-subtitle">
+          문서 검색, 파일 관리, 웹 자료 조사, 일정 관리를 한 번에
+        </div>
+
+        <div class="guide-section">
+          <div class="guide-title">뭘 시킬 수 있나요?</div>
+
+          <div class="guide-grid">
+            <button
+              v-for="card in guideCards"
+              :key="card.title"
+              class="guide-card"
+              type="button"
+              :disabled="chatStore.loading"
+              @click="fillGuidePrompt(card.prompt)"
+            >
+              <div class="guide-icon">{{ card.icon }}</div>
+              <div class="guide-text">
+                <div class="guide-card-title">{{ card.title }}</div>
+                <div class="guide-card-desc">{{ card.desc }}</div>
+                <div class="guide-example">“{{ card.prompt }}”</div>
+              </div>
+            </button>
+          </div>
+        </div>
 
         <div class="welcome-input-wrap">
           <div class="welcome-input-box">
             <input
+              ref="welcomeInputRef"
               v-model="userMessageInput"
               type="text"
               class="welcome-input"
-              placeholder="문서를 검색하거나 파일을 관리해보세요"
+              placeholder="카드를 누르거나 직접 요청을 입력해보세요"
               @keyup.enter="handleSendMessage"
               :disabled="chatStore.loading"
               autofocus
@@ -183,6 +251,7 @@ async function handleSendMessage() {
       <div class="input-inner">
         <div class="input-box">
           <input
+            ref="chatInputRef"
             v-model="userMessageInput"
             type="text"
             class="input-field"
@@ -405,6 +474,172 @@ async function handleSendMessage() {
   color: #71717A;
 }
 
+/* 초기 상태 */
+.welcome-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F5F7FB 0%, #FAFAFB 100%);
+  padding: 40px 20px;
+}
+
+.welcome-content {
+  text-align: center;
+  max-width: 820px;
+  width: 100%;
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #18181B;
+  margin-bottom: 8px;
+  letter-spacing: -.02em;
+}
+
+.welcome-subtitle {
+  font-size: 16px;
+  color: #71717A;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.guide-section {
+  margin: 0 auto 24px;
+  max-width: 820px;
+}
+
+.guide-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #52525B;
+  margin-bottom: 12px;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guide-card {
+  text-align: left;
+  border: 1px solid #E4E4E8;
+  background: rgba(255, 255, 255, .9);
+  border-radius: 16px;
+  padding: 15px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 10px rgba(20, 30, 60, .04);
+  transition: transform .15s, box-shadow .15s, border-color .15s, background .15s;
+}
+
+.guide-card:hover {
+  transform: translateY(-2px);
+  border-color: #BFD0FF;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(20, 30, 60, .08);
+}
+
+.guide-card:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+  transform: none;
+}
+
+.guide-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.guide-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #18181B;
+  margin-bottom: 5px;
+}
+
+.guide-card-desc {
+  font-size: 12px;
+  color: #71717A;
+  line-height: 1.45;
+  min-height: 34px;
+  margin-bottom: 10px;
+}
+
+.guide-example {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #3B6EF5;
+  background: #F2F6FF;
+  border-radius: 10px;
+  padding: 8px;
+  word-break: keep-all;
+}
+
+.welcome-input-wrap {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.welcome-input-box {
+  border: 1px solid #E2E2E8;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(20, 30, 60, .05);
+  padding: 8px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.welcome-input {
+  flex: 1;
+  padding: 9px 4px;
+  font-size: 14px;
+  border: none;
+  background: transparent;
+  color: #27272A;
+  font-family: inherit;
+  outline: none;
+  min-height: 36px;
+}
+
+.welcome-input::placeholder {
+  color: #A8A8B0;
+}
+
+.welcome-input:disabled {
+  color: #A8A8B0;
+}
+
+.welcome-send {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: none;
+  background: #18181B;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+
+.welcome-send:hover {
+  background: #000;
+}
+
+.welcome-send:disabled {
+  background: #A1A1AA;
+  cursor: not-allowed;
+}
+
 /* 입력 */
 .input-wrap {
   flex-shrink: 0;
@@ -479,103 +714,31 @@ async function handleSendMessage() {
   margin-top: 9px;
 }
 
-/* 초기 상태 */
-.welcome-area {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #F5F7FB 0%, #FAFAFB 100%);
-  padding: 40px 20px;
-}
-
-.welcome-content {
-  text-align: center;
-  max-width: 720px;
-  width: 100%;
-}
-
-.welcome-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #18181B;
-  margin-bottom: 8px;
-  letter-spacing: -.02em;
-}
-
-.welcome-subtitle {
-  font-size: 16px;
-  color: #71717A;
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-.welcome-input-wrap {
-  margin-top: 20px;
-  width: 100%;
-}
-
-.welcome-input-box {
-  border: 1px solid #E2E2E8;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(20, 30, 60, .05);
-  padding: 8px;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.welcome-input {
-  flex: 1;
-  padding: 9px 4px;
-  font-size: 14px;
-  border: none;
-  background: transparent;
-  color: #27272A;
-  font-family: inherit;
-  outline: none;
-  min-height: 36px;
-}
-
-.welcome-input::placeholder {
-  color: #A8A8B0;
-}
-
-.welcome-input:disabled {
-  color: #A8A8B0;
-}
-
-.welcome-send {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border: none;
-  background: #18181B;
-  border-radius: 10px;
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background .15s;
-}
-
-.welcome-send:hover {
-  background: #000;
-}
-
-.welcome-send:disabled {
-  background: #A1A1AA;
-  cursor: not-allowed;
-}
-
 .no-messages {
   text-align: center;
   padding: 40px 20px;
   color: #A8A8B0;
+}
+
+@media (max-width: 980px) {
+  .guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .welcome-content {
+    max-width: 100%;
+  }
+
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-inner,
+  .input-inner {
+    padding: 0 20px;
+  }
 }
 
 @keyframes livepulse {
