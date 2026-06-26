@@ -1,5 +1,8 @@
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
+
 import { useChatStore } from '../stores/chatStore'
 import logo from '../assets/logo.svg'
 
@@ -10,6 +13,12 @@ const welcomeInputRef = ref(null)
 const chatInputRef = ref(null)
 
 const chatTitle = computed(() => chatStore.activeConversation?.title || '새 채팅')
+
+const markdown = new MarkdownIt({
+  html: false,
+  linkify: true,
+  breaks: true
+})
 
 const guideCards = [
   {
@@ -49,11 +58,7 @@ function scrollToBottom() {
   })
 }
 
-function fillGuidePrompt(prompt) {
-  if (chatStore.loading) return
-
-  userMessageInput.value = prompt
-
+function focusInput() {
   nextTick(() => {
     const input = chatStore.activeConversation
       ? chatInputRef.value
@@ -62,6 +67,43 @@ function fillGuidePrompt(prompt) {
     input?.focus()
   })
 }
+
+function fillGuidePrompt(prompt) {
+  if (chatStore.loading) return
+  if (!prompt) return
+
+  userMessageInput.value = prompt
+  focusInput()
+}
+
+function handleGuidePromptSelected(event) {
+  const prompt = event.detail?.prompt
+  fillGuidePrompt(prompt)
+}
+
+function getAssistantText(msg) {
+  return (
+    msg.content ||
+    (msg.pending
+      ? chatStore.processingStatus || '답변을 생성하고 있습니다...'
+      : '')
+  )
+}
+
+function renderMarkdown(content) {
+  if (!content) return ''
+
+  const html = markdown.render(content)
+  return DOMPurify.sanitize(html)
+}
+
+onMounted(() => {
+  window.addEventListener('guide-prompt-selected', handleGuidePromptSelected)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('guide-prompt-selected', handleGuidePromptSelected)
+})
 
 watch(
   () => chatStore.activeConversationId,
@@ -164,14 +206,10 @@ async function handleSendMessage() {
               </div>
 
               <div class="msg-ai-body">
-                <div class="ai-text">
-                  {{
-                    msg.content ||
-                    (msg.pending
-                      ? chatStore.processingStatus || '답변을 생성하고 있습니다...'
-                      : '')
-                  }}
-                </div>
+                <div
+                  class="ai-text markdown-body"
+                  v-html="renderMarkdown(getAssistantText(msg))"
+                ></div>
               </div>
             </template>
           </div>
@@ -200,6 +238,7 @@ async function handleSendMessage() {
               @click="fillGuidePrompt(card.prompt)"
             >
               <div class="guide-icon">{{ card.icon }}</div>
+
               <div class="guide-text">
                 <div class="guide-card-title">{{ card.title }}</div>
                 <div class="guide-card-desc">{{ card.desc }}</div>
@@ -465,8 +504,130 @@ async function handleSendMessage() {
   font-size: 14px;
   line-height: 1.7;
   color: #27272A;
-  white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* Markdown 출력 */
+.markdown-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #27272A;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.markdown-body :deep(p) {
+  margin: 0 0 10px;
+}
+
+.markdown-body :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.markdown-body :deep(strong) {
+  font-weight: 800;
+  color: #18181B;
+}
+
+.markdown-body :deep(em) {
+  font-style: italic;
+}
+
+.markdown-body :deep(ol),
+.markdown-body :deep(ul) {
+  margin: 8px 0 12px;
+  padding-left: 22px;
+}
+
+.markdown-body :deep(li) {
+  margin: 6px 0;
+  padding-left: 2px;
+}
+
+.markdown-body :deep(li > p) {
+  margin: 0;
+}
+
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3) {
+  margin: 16px 0 8px;
+  font-weight: 800;
+  color: #18181B;
+  line-height: 1.35;
+}
+
+.markdown-body :deep(h1) {
+  font-size: 22px;
+}
+
+.markdown-body :deep(h2) {
+  font-size: 19px;
+}
+
+.markdown-body :deep(h3) {
+  font-size: 16px;
+}
+
+.markdown-body :deep(code) {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #F4F4F5;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 13px;
+}
+
+.markdown-body :deep(pre) {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: #18181B;
+  color: #FAFAFA;
+  overflow-x: auto;
+}
+
+.markdown-body :deep(pre code) {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.markdown-body :deep(blockquote) {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-left: 4px solid #BFD0FF;
+  background: #F7F9FF;
+  color: #52525B;
+}
+
+.markdown-body :deep(a) {
+  color: #3B6EF5;
+  text-decoration: underline;
+}
+
+.markdown-body :deep(hr) {
+  border: none;
+  border-top: 1px solid #E4E4E8;
+  margin: 16px 0;
+}
+
+.markdown-body :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.markdown-body :deep(th),
+.markdown-body :deep(td) {
+  border: 1px solid #E4E4E8;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.markdown-body :deep(th) {
+  background: #F7F7F9;
+  font-weight: 700;
 }
 
 .msg-ai .ai-text:empty::after {
