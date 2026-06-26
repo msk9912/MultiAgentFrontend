@@ -172,11 +172,6 @@ async function handleSendMessage() {
           </span>
         </span>
       </div>
-
-      <div class="header-actions">
-        <button class="btn-ghost">↗ 공유</button>
-        <button class="btn-icon">⋯</button>
-      </div>
     </header>
 
     <!-- 대화 진행 중일 때 -->
