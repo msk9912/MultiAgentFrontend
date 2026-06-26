@@ -1,4 +1,4 @@
-# AI Workspace — 멀티 에이전트 파일 관리 (Vue 3)
+# 해줘 AI — 멀티 에이전트 파일 관리 (Vue 3)
 
 ChatGPT · Notion · LangSmith · Perplexity · Linear 감성의 화이트 SaaS 대시보드를
 **Vue 3 + Vite** 로 구현한 버전입니다. 전체 UI는 한국어로 구성되어 있습니다.

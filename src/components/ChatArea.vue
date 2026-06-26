@@ -182,7 +182,7 @@ async function handleSendMessage() {
     <!-- 초기 상태: 큰 입력 영역 -->
     <div v-else class="welcome-area">
       <div class="welcome-content">
-        <div class="welcome-title">AI Workspace</div>
+        <div class="welcome-title">해줘 AI</div>
         <div class="welcome-subtitle">
           문서 검색, 파일 관리, 웹 자료 조사, 일정 관리를 한 번에
         </div>

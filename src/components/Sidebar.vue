@@ -73,8 +73,8 @@ function formatRelativeTime(dateStr) {
     <div class="brand">
       <button class="brand-mark" @click="toggleSidebar" title="사이드바 접기/펼치기"><img :src="logo" alt="logo" class="brand-logo" /></button>
       <div class="brand-text" v-if="!isCollapsed">
-        <span class="brand-title">AI Workspace</span>
-        <span class="brand-sub">Multi-Agent File Assistant</span>
+        <span class="brand-title">해줘 AI</span>
+        <span class="brand-sub">멀티 에이전트 파일 비서</span>
       </div>
     </div>
 

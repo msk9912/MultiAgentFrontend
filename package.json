@@ -1,7 +1,7 @@
 {
   "name": "ai-workspace-vue",
   "version": "1.0.0",
-  "description": "멀티 에이전트 파일 관리 AI Workspace — Vue 3 + Vite",
+  "description": "멀티 에이전트 파일 관리 해줘 AI — Vue 3 + Vite",
   "private": true,
   "type": "module",
   "scripts": {
