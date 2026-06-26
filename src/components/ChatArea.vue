@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useChatStore } from '../stores/chatStore'
 import { currentUser } from '../constants/user'
+import logo from '../assets/logo.svg'
 
 const chatStore = useChatStore()
 const userMessageInput = ref('')
@@ -65,7 +66,7 @@ async function handleSendMessage() {
               <div class="bubble-user">{{ msg.content }}</div>
             </template>
             <template v-else>
-              <div class="avatar-ai"><div class="ai-diamond"></div></div>
+              <div class="avatar-ai"><img :src="logo" alt="logo" class="ai-logo" /></div>
               <div class="msg-ai-body">
                 <div class="ai-text">{{ msg.content }}</div>
               </div>
@@ -170,11 +171,10 @@ async function handleSendMessage() {
 .msg-ai { display: flex; gap: 13px; align-items: flex-start; margin-left: -32px; }
 .avatar-ai {
   width: 30px; height: 30px; border-radius: 9px;
-  background: linear-gradient(140deg, #3B6EF5, #5B4BE0);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; box-shadow: 0 2px 6px rgba(59, 110, 245, .3);
+  flex-shrink: 0; overflow: hidden;
 }
-.ai-diamond { width: 10px; height: 10px; border: 2.5px solid #fff; border-radius: 3px; transform: rotate(45deg); }
+.ai-logo { width: 100%; height: 100%; object-fit: cover; }
 .msg-ai-body { flex: 1; min-width: 0; }
 .ai-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .ai-name { font-size: 13px; font-weight: 700; }

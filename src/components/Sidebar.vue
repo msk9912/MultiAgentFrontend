@@ -2,8 +2,10 @@
 import { useChatStore } from '../stores/chatStore'
 import { currentUser } from '../constants/user'
 import { onMounted, ref } from 'vue'
+import logo from '../assets/logo.svg'
 
 const chatStore = useChatStore()
+const isCollapsed = ref(false)
 const newChatTitle = ref('')
 const showNewChatInput = ref(false)
 const editingId = ref(null)
@@ -12,6 +14,10 @@ const editingTitle = ref('')
 onMounted(() => {
   chatStore.loadConversations()
 })
+
+function toggleSidebar() {
+  isCollapsed.value = !isCollapsed.value
+}
 
 function handleNewChat() {
   // 새 채팅 시작: welcome-area 표시
@@ -62,11 +68,11 @@ function formatRelativeTime(dateStr) {
 </script>
 
 <template>
-  <aside class="sidebar">
+  <aside class="sidebar" :class="{ 'is-collapsed': isCollapsed }">
     <!-- 브랜드 -->
     <div class="brand">
-      <div class="brand-mark"><div class="brand-diamond"></div></div>
-      <div class="brand-text">
+      <button class="brand-mark" @click="toggleSidebar" title="사이드바 접기/펼치기"><img :src="logo" alt="logo" class="brand-logo" /></button>
+      <div class="brand-text" v-if="!isCollapsed">
         <span class="brand-title">AI Workspace</span>
         <span class="brand-sub">Multi-Agent File Assistant</span>
       </div>
@@ -74,13 +80,13 @@ function formatRelativeTime(dateStr) {
 
     <!-- 새 채팅 -->
     <div class="new-chat-wrap">
-      <button class="new-chat-btn" @click="handleNewChat">
-        <span class="plus">+</span> 새 채팅
+      <button class="new-chat-btn" @click="handleNewChat" title="새 채팅">
+        <span class="plus">+</span> <span v-if="!isCollapsed">새 채팅</span>
       </button>
     </div>
 
     <!-- 스크롤 영역 -->
-    <div class="scroll">
+    <div class="scroll" v-if="!isCollapsed">
       <div class="section-label">채팅</div>
       <div class="chat-list">
         <div
@@ -135,11 +141,13 @@ function formatRelativeTime(dateStr) {
     <!-- 사용자 -->
     <div class="user-footer">
       <div class="avatar">{{ currentUser.avatar }}</div>
-      <div class="user-text">
-        <span class="user-name">{{ currentUser.name }}</span>
-        <span class="user-plan">{{ currentUser.plan }}</span>
-      </div>
-      <span class="user-gear">⚙</span>
+      <template v-if="!isCollapsed">
+        <div class="user-text">
+          <span class="user-name">{{ currentUser.name }}</span>
+          <span class="user-plan">{{ currentUser.plan }}</span>
+        </div>
+        <span class="user-gear">⚙</span>
+      </template>
     </div>
   </aside>
 </template>
@@ -154,23 +162,33 @@ function formatRelativeTime(dateStr) {
   flex-direction: column;
   background: #FAFAFB;
   border-right: 1px solid #ECECEF;
+  transition: width .15s, min-width .15s;
+}
+.sidebar.is-collapsed {
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
 }
 
 /* 브랜드 */
 .brand { display: flex; align-items: center; gap: 10px; padding: 16px 16px 14px; }
+.sidebar.is-collapsed .brand { justify-content: center; padding: 16px 0 14px; }
 .brand-mark {
   width: 30px; height: 30px; border-radius: 8px;
-  background: linear-gradient(140deg, #3B6EF5, #5B4BE0);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; box-shadow: 0 2px 6px rgba(59, 110, 245, .32);
+  flex-shrink: 0; overflow: hidden;
+  border: none; background: transparent; padding: 0; cursor: pointer;
+  transition: transform .15s;
 }
-.brand-diamond { width: 11px; height: 11px; border: 2.5px solid #fff; border-radius: 3px; transform: rotate(45deg); }
+.brand-mark:hover { transform: scale(1.06); }
+.brand-logo { width: 100%; height: 100%; object-fit: cover; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-title { font-size: 14.5px; font-weight: 700; letter-spacing: -.02em; }
 .brand-sub { font-size: 11px; color: #9A9AA2; font-weight: 500; margin-top: 2px; }
 
 /* 새 채팅 */
 .new-chat-wrap { padding: 4px 12px 12px; }
+.sidebar.is-collapsed .new-chat-wrap { padding: 4px 12px 12px; }
 .new-chat-btn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px;
   padding: 10px; background: #18181B; color: #fff; border: none; border-radius: 10px;
