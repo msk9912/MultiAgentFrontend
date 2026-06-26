@@ -236,6 +236,12 @@ async function handleSendMessage() {
 
 .no-messages { text-align: center; padding: 40px 20px; color: #A8A8B0; }
 
+.bubble-user,
+.ai-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @keyframes livepulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
