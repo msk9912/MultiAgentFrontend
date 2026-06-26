@@ -19,10 +19,10 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
     try {
       const data = await chatApi.getConversations()
-      conversations.value = data.conversations || []
-      if (conversations.value.length > 0 && !activeConversationId.value) {
-        activeConversationId.value = conversations.value[0].id
-      }
+      conversations.value = (data || []).map(conv => ({
+        id: conv.conversation_id,
+        ...conv
+      }))
     } catch (err) {
       error.value = err.message
       console.error('Failed to load conversations:', err)
@@ -39,7 +39,10 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
     try {
       const data = await chatApi.getMessages(conversationId)
-      messages.value = data.messages || []
+      messages.value = (data || []).map(msg => ({
+        id: msg.message_id,
+        ...msg
+      }))
     } catch (err) {
       error.value = err.message
       console.error('Failed to load messages:', err)
@@ -54,9 +57,13 @@ export const useChatStore = defineStore('chat', () => {
     error.value = null
     try {
       const data = await chatApi.createConversation(title)
-      if (data.id) {
-        conversations.value.push(data)
-        activeConversationId.value = data.id
+      if (data && data.conversation_id) {
+        const conversation = {
+          id: data.conversation_id,
+          ...data
+        }
+        conversations.value.push(conversation)
+        activeConversationId.value = data.conversation_id
         messages.value = []
       }
       return data
@@ -101,15 +108,42 @@ export const useChatStore = defineStore('chat', () => {
   async function sendMessage(content) {
     if (!activeConversationId.value) return
 
+    const tempUserMessageId = `temp-user-${Date.now()}`
+    messages.value.push({
+      id: tempUserMessageId,
+      message_id: tempUserMessageId,
+      role: 'user',
+      content
+    })
+
     error.value = null
     loading.value = true
     try {
       const data = await chatApi.sendMessage(activeConversationId.value, content)
-      if (data.id) {
-        messages.value.push(data)
+
+      if (data.user_message) {
+        const userMessageIndex = messages.value.findIndex(msg => msg.id === tempUserMessageId)
+        const userMessage = {
+          id: data.user_message.message_id,
+          ...data.user_message
+        }
+
+        if (userMessageIndex >= 0) {
+          messages.value.splice(userMessageIndex, 1, userMessage)
+        } else {
+          messages.value.push(userMessage)
+        }
+      }
+
+      if (data.assistant_message) {
+        messages.value.push({
+          id: data.assistant_message.message_id,
+          ...data.assistant_message
+        })
       }
       return data
     } catch (err) {
+      messages.value = messages.value.filter(msg => msg.id !== tempUserMessageId)
       error.value = err.message
       console.error('Failed to send message:', err)
     } finally {

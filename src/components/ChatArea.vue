@@ -24,13 +24,10 @@ async function handleSendMessage() {
   // 활성 대화가 없으면 새로 생성
   if (!chatStore.activeConversationId) {
     const title = msg.substring(0, 50) + (msg.length > 50 ? '...' : '')
-    await chatStore.createConversation(title)
-    // 새 대화가 생성되면 자동으로 메시지 전송
-    setTimeout(() => {
-      if (chatStore.activeConversationId) {
-        chatStore.sendMessage(msg)
-      }
-    }, 100)
+    const conversation = await chatStore.createConversation(title)
+    if (conversation?.conversation_id) {
+      await chatStore.sendMessage(msg)
+    }
   } else {
     await chatStore.sendMessage(msg)
   }
@@ -66,15 +63,10 @@ async function handleSendMessage() {
           <div v-for="msg in chatStore.messages" :key="msg.id" :class="msg.role === 'user' ? 'msg-user' : 'msg-ai'">
             <div v-if="msg.role === 'user'">
               <div class="bubble-user">{{ msg.content }}</div>
-              <div class="avatar-user">{{ currentUser.avatar }}</div>
             </div>
             <div v-else>
               <div class="avatar-ai"><div class="ai-diamond"></div></div>
               <div class="msg-ai-body">
-                <div class="ai-name-row">
-                  <span class="ai-name">Supervisor Agent</span>
-                  <span class="ai-tag">오케스트레이터</span>
-                </div>
                 <div class="ai-text">{{ msg.content }}</div>
               </div>
             </div>
@@ -94,7 +86,7 @@ async function handleSendMessage() {
               v-model="userMessageInput"
               type="text"
               class="welcome-input"
-              placeholder="질문을 입력하세요..."
+              placeholder="문서를 검색하거나 파일을 관리해보세요"
               @keyup.enter="handleSendMessage"
               :disabled="chatStore.loading"
               autofocus
@@ -113,7 +105,6 @@ async function handleSendMessage() {
     <div class="input-wrap" v-if="chatStore.activeConversation">
       <div class="input-inner">
         <div class="input-box">
-          <button class="input-attach" title="파일 첨부">📎</button>
           <input
             v-model="userMessageInput"
             type="text"
@@ -167,7 +158,7 @@ async function handleSendMessage() {
 .conversation { flex: 1; overflow-y: auto; padding: 28px 0; }
 .conversation-inner { max-width: 720px; margin: 0 auto; padding: 0 32px; display: flex; flex-direction: column; gap: 26px; }
 
-.msg-user { display: flex; gap: 13px; align-items: flex-start; align-self: flex-end; max-width: 82%; }
+.msg-user { display: flex; gap: 13px; align-items: flex-start; margin-left: auto; max-width: 82%; width: fit-content; }
 .bubble-user { background: #EEF3FE; color: #1B3B8A; padding: 12px 16px; border-radius: 16px 16px 4px 16px; font-size: 14px; line-height: 1.6; font-weight: 500; }
 .avatar-user {
   width: 30px; height: 30px; border-radius: 50%;
@@ -213,7 +204,7 @@ async function handleSendMessage() {
   background: linear-gradient(135deg, #F5F7FB 0%, #FAFAFB 100%);
   padding: 40px 20px;
 }
-.welcome-content { text-align: center; max-width: 500px; }
+.welcome-content { text-align: center; max-width: 720px; width: 100%; }
 .welcome-title {
   font-size: 32px; font-weight: 700; color: #18181B; margin-bottom: 8px;
   letter-spacing: -.02em;
@@ -221,26 +212,26 @@ async function handleSendMessage() {
 .welcome-subtitle {
   font-size: 16px; color: #71717A; margin-bottom: 32px; line-height: 1.6;
 }
-.welcome-input-wrap { margin-top: 20px; }
+.welcome-input-wrap { margin-top: 20px; width: 100%; }
 .welcome-input-box {
-  border: 1px solid #E2E2E8; border-radius: 20px; background: #fff;
-  box-shadow: 0 4px 24px rgba(20, 30, 60, .08); padding: 12px;
-  display: flex; align-items: center; gap: 12px;
+  border: 1px solid #E2E2E8; border-radius: 16px; background: #fff;
+  box-shadow: 0 2px 12px rgba(20, 30, 60, .05); padding: 8px;
+  display: flex; align-items: flex-end; gap: 8px; width: 100%;
+  box-sizing: border-box;
 }
 .welcome-input {
-  flex: 1; padding: 12px 16px; font-size: 16px; border: none; background: transparent;
-  color: #27272A; font-family: inherit; outline: none; min-height: 44px;
+  flex: 1; padding: 9px 4px; font-size: 14px; border: none; background: transparent;
+  color: #27272A; font-family: inherit; outline: none; min-height: 36px;
 }
 .welcome-input::placeholder { color: #A8A8B0; }
 .welcome-input:disabled { color: #A8A8B0; }
 .welcome-send {
-  width: 44px; height: 44px; flex-shrink: 0; border: none;
-  background: linear-gradient(135deg, #3B6EF5, #5B4BE0);
-  border-radius: 14px; color: #fff; cursor: pointer;
+  width: 36px; height: 36px; flex-shrink: 0; border: none;
+  background: #18181B; border-radius: 10px; color: #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: background .15s; box-shadow: 0 2px 8px rgba(59, 110, 245, .3);
+  transition: background .15s;
 }
-.welcome-send:hover { background: linear-gradient(135deg, #2D5AD0, #4A3BC8); }
+.welcome-send:hover { background: #000; }
 .welcome-send:disabled { background: #A1A1AA; cursor: not-allowed; }
 
 .no-messages { text-align: center; padding: 40px 20px; color: #A8A8B0; }

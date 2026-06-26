@@ -6,17 +6,19 @@ import { onMounted, ref } from 'vue'
 const chatStore = useChatStore()
 const newChatTitle = ref('')
 const showNewChatInput = ref(false)
+const editingId = ref(null)
+const editingTitle = ref('')
 
 onMounted(() => {
   chatStore.loadConversations()
 })
 
 function handleNewChat() {
-  if (newChatTitle.value.trim()) {
-    chatStore.createConversation(newChatTitle.value)
-    newChatTitle.value = ''
-    showNewChatInput.value = false
-  }
+  // 새 채팅 시작: welcome-area 표시
+  chatStore.activeConversationId = null
+  chatStore.messages = []
+  newChatTitle.value = ''
+  showNewChatInput.value = false
 }
 
 function selectChat(conversationId) {
@@ -26,6 +28,24 @@ function selectChat(conversationId) {
 function handleDeleteChat(e, conversationId) {
   e.stopPropagation()
   chatStore.deleteConversation(conversationId)
+}
+
+function startEditing(e, conversationId, currentTitle) {
+  e.stopPropagation()
+  editingId.value = conversationId
+  editingTitle.value = currentTitle
+}
+
+function cancelEditing() {
+  editingId.value = null
+  editingTitle.value = ''
+}
+
+async function saveTitle(conversationId) {
+  if (editingTitle.value.trim() && editingTitle.value !== chatStore.conversations.find(c => c.id === conversationId)?.title) {
+    await chatStore.updateConversation(conversationId, editingTitle.value)
+  }
+  cancelEditing()
 }
 </script>
 
@@ -42,24 +62,9 @@ function handleDeleteChat(e, conversationId) {
 
     <!-- 새 채팅 -->
     <div class="new-chat-wrap">
-      <button v-if="!showNewChatInput" class="new-chat-btn" @click="showNewChatInput = true">
+      <button class="new-chat-btn" @click="handleNewChat">
         <span class="plus">+</span> 새 채팅
       </button>
-      <div v-else class="new-chat-input-wrap">
-        <input
-          v-model="newChatTitle"
-          type="text"
-          placeholder="채팅 이름"
-          class="new-chat-input"
-          @keyup.enter="handleNewChat"
-          @keyup.escape="showNewChatInput = false"
-          autofocus
-        />
-        <div class="new-chat-actions">
-          <button class="btn-confirm" @click="handleNewChat">생성</button>
-          <button class="btn-cancel" @click="showNewChatInput = false">취소</button>
-        </div>
-      </div>
     </div>
 
     <!-- 스크롤 영역 -->
@@ -70,19 +75,45 @@ function handleDeleteChat(e, conversationId) {
           v-for="chat in chatStore.conversations"
           :key="chat.id"
           class="chat-item"
-          :class="{ 'is-active': chat.id === chatStore.activeConversationId }"
+          :class="{ 'is-active': chat.id === chatStore.activeConversationId, 'is-editing': editingId === chat.id }"
           @click="selectChat(chat.id)"
         >
-          <div class="chat-item-row">
+          <!-- 편집 모드 -->
+          <div v-if="editingId === chat.id" class="chat-item-edit-row">
+            <input
+              v-model="editingTitle"
+              type="text"
+              class="chat-item-edit-input"
+              @click.stop
+              @keyup.enter="saveTitle(chat.id)"
+              @keyup.escape="cancelEditing"
+              autofocus
+            />
+            <div class="chat-item-edit-actions">
+              <button class="chat-item-edit-save" @click.stop="saveTitle(chat.id)" title="저장">✓</button>
+              <button class="chat-item-edit-cancel" @click.stop="cancelEditing" title="취소">✕</button>
+            </div>
+          </div>
+
+          <!-- 일반 모드 -->
+          <div v-else class="chat-item-row">
             <span class="chat-item-title">{{ chat.title }}</span>
-            <button
-              v-if="chat.id === chatStore.activeConversationId"
-              class="chat-item-delete"
-              @click="handleDeleteChat($event, chat.id)"
-              title="삭제"
-            >
-              ✕
-            </button>
+            <div v-if="chat.id === chatStore.activeConversationId" class="chat-item-actions">
+              <button
+                class="chat-item-edit"
+                @click="startEditing($event, chat.id, chat.title)"
+                title="수정"
+              >
+                ✎
+              </button>
+              <button
+                class="chat-item-delete"
+                @click="handleDeleteChat($event, chat.id)"
+                title="삭제"
+              >
+                ✕
+              </button>
+            </div>
             <span v-else class="chat-item-dot"></span>
           </div>
           <div class="chat-item-meta">{{ chat.updated_at || '방금 전' }}</div>
@@ -166,14 +197,36 @@ function handleDeleteChat(e, conversationId) {
 }
 .chat-item.is-active:hover { background: #fff; }
 .chat-item-row { display: flex; align-items: center; justify-content: space-between; }
-.chat-item-title { font-size: 13px; font-weight: 500; color: #3F3F46; }
+.chat-item-title { font-size: 13px; font-weight: 500; color: #3F3F46; flex: 1; min-width: 0; }
 .chat-item.is-active .chat-item-title { font-weight: 600; color: #18181B; }
 .chat-item-dot { width: 6px; height: 6px; border-radius: 50%; background: #3B6EF5; }
+.chat-item-actions { display: flex; align-items: center; gap: 4px; margin-left: 6px; }
+.chat-item-edit {
+  width: 20px; height: 20px; border: none; background: transparent; color: #A1A1AA;
+  cursor: pointer; font-size: 13px; transition: color .15s; display: flex; align-items: center; justify-content: center;
+}
+.chat-item-edit:hover { color: #3B6EF5; }
 .chat-item-delete {
   width: 20px; height: 20px; border: none; background: transparent; color: #A1A1AA;
   cursor: pointer; font-size: 14px; transition: color .15s;
 }
 .chat-item-delete:hover { color: #E24458; }
+
+.chat-item-edit-row { display: flex; align-items: center; gap: 6px; }
+.chat-item-edit-input {
+  flex: 1; padding: 4px 8px; border: 1px solid #3B6EF5; border-radius: 6px;
+  font-family: inherit; font-size: 13px; background: #fff; color: #18181B; outline: none;
+}
+.chat-item-edit-input:focus { border-color: #3B6EF5; box-shadow: 0 0 0 2px rgba(59, 110, 245, 0.1); }
+.chat-item-edit-actions { display: flex; align-items: center; gap: 4px; }
+.chat-item-edit-save, .chat-item-edit-cancel {
+  width: 20px; height: 20px; border: none; background: transparent; cursor: pointer;
+  font-size: 13px; display: flex; align-items: center; justify-content: center; transition: color .15s;
+}
+.chat-item-edit-save { color: #16A34A; }
+.chat-item-edit-save:hover { color: #22C55E; }
+.chat-item-edit-cancel { color: #DC2626; }
+.chat-item-edit-cancel:hover { color: #EF4444; }
 .chat-item-meta { font-size: 11px; color: #A8A8B0; margin-top: 3px; }
 .chat-item.is-active .chat-item-meta { color: #9A9AA2; }
 
